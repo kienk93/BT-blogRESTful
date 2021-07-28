@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<!--// Link với thymeleaf-->
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <title>HomePageBlog</title>
+    <!--    //Link với bootstrap-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          crossorigin="anonymous">
+    <!--    //Link với JQuery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+<form id="add-blog">
+    <table>
+        <tr>
+            <td>Id:</td>
+            <td><input type="text" id="id" placeholder="id"></td>
+        </tr>
+        <tr>
+            <td>Description:</td>
+            <td><input type="text" id="description" placeholder="description"></td>
+        </tr>
+        <tr>
+            <td>title:</td>
+            <td><input type="text" id="title" placeholder="title"></td>
+        </tr>
+        <tr>
+            <td>comment:</td>
+            <td><input type="text" id="comment" placeholder="comment"></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Add" onclick="addNewBlog()"></td>
+        </tr>
+    </table>
+</form>
+<h1>Blog List</h1>
+    <table id="blogList" border="1px">
+        <tr>
+            <th>Id</th>
+            <th>Description</th>
+            <th>Title</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+        <tr th:each="x:${blogs}">
+            <td th:text="${x.id}"></td>
+            <td th:text="${x.description}"></td>
+            <td th:text="${x.title}"></td>
+            <td th:text="${x.comment.content}"></td>
+            <td><a class="btn btn-primary" >edit</a></td>
+            <td><a class="btn btn-danger">delete</a></td>
+        </tr>
+    </table>
+
+<script>
+
+    function addNewBlog(){
+        //lay du lieu
+        let id = $('#id').val();
+        let description = $('#description').val();
+        let title = $('#title').val();
+        let comment = $('#comment').val();
+        let newBlog = {
+            id : id,
+            description : description,
+            title : title,
+            comment : comment
+        }
+        // goi ajax
+        $.ajax({
+            header: {
+                'Accept' : 'application/json',
+                'Content-Type' : 'application/json'
+            },
+            type : "POST",
+            data : JSON.stringify(newBlog),
+            //tên API
+            url : "/blogs",
+            //xử lý khi thành công
+            success : successHandle
+        })
+    event.preventDefault();
+
+    }
+    function getBlog(blog) {
+        return `<tr><td >${blog.id}</td><td >${blog.description}</td><td >${blog.title}</td><td >${blog.comment}</td>`;
+    }
+    function successHandle(){
+        $.ajax({
+            type:"GET",
+            url:"/blogs",
+            success: function (data){
+                // hien thi danh sach o day
+                let content = `<tr>
+            <td th:text="${x.id}"></td>
+            <td th:text="${x.description}"></td>
+            <td th:text="${x.title}"></td>
+            <td th:text="${x.comment.content}"></td>
+             </tr>  `;
+                for (let i = 0; i < data.length; i++) {
+                    content += getBlog(data[i]);
+                }
+                document.getElementById('blogList').innerHTML = content;
+            }
+        })
+    }
+
+
+
+</script>
+</body>
+</html>
